@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState, useMemo, DragEvent } from 'react';
@@ -86,8 +87,9 @@ export default function NewEntryPage() {
       if (insErr) throw insErr;
 
       router.push('/app');
-    } catch (e: any) {
-      setError(e?.message ?? 'Failed to save entry.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Failed to save entry.');
     } finally {
       setSaving(false);
     }
