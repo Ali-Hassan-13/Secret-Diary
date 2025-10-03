@@ -87,10 +87,14 @@ export default function NewEntryPage() {
       if (insErr) throw insErr;
 
       router.push('/app');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg || 'Failed to save entry.');
-    } finally {
+      } catch (err: unknown) {
+  const msg = err instanceof Error ? err.message : String(err);
+  setError(msg || 'Failed to save entry.');
+} finally {
+    // } catch (err: unknown) {
+    //   const msg = err instanceof Error ? err.message : String(err);
+    //   setError(msg || 'Failed to save entry.');
+    // } finally {
       setSaving(false);
     }
   }
