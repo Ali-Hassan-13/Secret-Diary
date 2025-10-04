@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+@keyframes gradient-slow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-slow {
+  background-size: 200% 200%;
+  animation: gradient-slow 12s ease infinite;
+}
+
+.neon-glow {
+  box-shadow: 0 0 12px rgba(255,255,255,0.2),
+              0 0 25px currentColor,
+              inset 0 0 10px currentColor;
+  transition: all 0.3s ease;
+}
+.neon-green { color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
+.neon-pink { color: #ff33ff; text-shadow: 0 0 10px #ff33ff; }
+.neon-red { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
+.neon-blue { color: #33ccff; text-shadow: 0 0 10px #33ccff; }
+.neon-yellow { color: #ffee33; text-shadow: 0 0 10px #ffee33; }
+.neon-gray { color: #cccccc; text-shadow: 0 0 8px #999; }
+
+
+.neon-blue {
+  color: #33ccff;
+  text-shadow: 0 0 10px #33ccff, 0 0 20px #00ccff, 0 0 30px #00aaff;
+}
+.neon-glow {
+  box-shadow: 0 0 12px rgba(255,255,255,0.1),
+              0 0 25px rgba(0,255,255,0.4),
+              inset 0 0 10px rgba(0,255,255,0.3);
+  transition: all 0.3s ease;
+}
