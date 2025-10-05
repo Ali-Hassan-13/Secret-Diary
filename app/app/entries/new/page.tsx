@@ -1,7 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
+/* eslint-disable */
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -23,12 +20,12 @@ const MOOD_STYLES: Record<
     gradient: string;
   }
 > = {
-  happy:   { dot: 'bg-emerald-400', neon: 'neon-green', gradient: 'from-emerald-400 via-lime-400 to-green-500' },
-  neutral: { dot: 'bg-zinc-400',    neon: 'neon-gray',  gradient: 'from-zinc-300 via-zinc-400 to-zinc-600' },
-  sad:     { dot: 'bg-sky-400',     neon: 'neon-blue',  gradient: 'from-sky-400 via-blue-500 to-cyan-500' },
-  angry:   { dot: 'bg-rose-500',    neon: 'neon-red',   gradient: 'from-rose-400 via-pink-500 to-orange-500' },
-  anxious: { dot: 'bg-amber-400',   neon: 'neon-yellow',gradient: 'from-amber-400 via-amber-500 to-yellow-400' },
-  excited: { dot: 'bg-fuchsia-500', neon: 'neon-pink',  gradient: 'from-fuchsia-400 via-pink-500 to-purple-500' },
+  happy:   { dot: 'bg-emerald-400', neon: 'neon-green',  gradient: 'from-emerald-400 via-lime-400 to-green-500' },
+  neutral: { dot: 'bg-zinc-400',    neon: 'neon-gray',   gradient: 'from-zinc-300 via-zinc-400 to-zinc-600' },
+  sad:     { dot: 'bg-sky-400',     neon: 'neon-blue',   gradient: 'from-sky-400 via-blue-500 to-cyan-500' },
+  angry:   { dot: 'bg-rose-500',    neon: 'neon-red',    gradient: 'from-rose-400 via-pink-500 to-orange-500' },
+  anxious: { dot: 'bg-amber-400',   neon: 'neon-yellow', gradient: 'from-amber-400 via-amber-500 to-yellow-400' },
+  excited: { dot: 'bg-fuchsia-500', neon: 'neon-pink',   gradient: 'from-fuchsia-400 via-pink-500 to-purple-500' },
 };
 
 export default function NewEntryPage() {
@@ -39,6 +36,7 @@ export default function NewEntryPage() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [mood, setMood] = useState<Mood>('neutral');
+
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +57,8 @@ export default function NewEntryPage() {
     e.preventDefault();
     try {
       setSaving(true);
+      setError(null);
+
       const {
         data: { user },
         error: userErr,
@@ -69,34 +69,39 @@ export default function NewEntryPage() {
       if (file) {
         const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
         const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: upErr } = await sb.storage.from(BUCKET).upload(path, file);
+        const { error: upErr } = await sb.storage.from(BUCKET).upload(path, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
         if (upErr) throw upErr;
+
         const { data } = sb.storage.from(BUCKET).getPublicUrl(path);
         image_url = data.publicUrl;
       }
 
-      await sb.from('entries').insert({
+      const createdAt = new Date(`${date}T00:00:00`).toISOString();
+
+      const { error: insertErr } = await sb.from('entries').insert({
         user_id: user.id,
         title,
         body,
         mood,
-        created_at: new Date(`${date}T00:00:00`).toISOString(),
+        created_at: createdAt,
         image_url,
       });
+      if (insertErr) throw insertErr;
 
       router.push('/app');
-    } catch (err: any) {
-      setError(err.message ?? 'Failed to save entry.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg || 'Failed to save entry.');
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 animate-fade-in"
-    >
+    <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <h1 className={`text-3xl font-bold tracking-tight ${styles.neon}`}>New Entry</h1>
         <a
@@ -115,13 +120,16 @@ export default function NewEntryPage() {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="rounded-lg border border-white/10 bg-zinc-900/70 px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-500/40"
+          required
         />
+
         <label className="text-sm text-zinc-400 mt-2">Title</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Today's title..."
           className="rounded-lg border border-white/10 bg-zinc-900/70 px-3 py-2 outline-none focus:ring-2 focus:ring-cyan-500/40"
+          required
         />
       </div>
 
@@ -154,6 +162,7 @@ export default function NewEntryPage() {
                     ? `bg-white/5 shadow-[0_0_15px] ${s.dot} text-white neon-glow`
                     : 'hover:bg-white/5 text-zinc-400'
                 }`}
+                aria-pressed={active}
               >
                 <span className={`h-2 w-2 rounded-full ${s.dot}`} />
                 {m}
@@ -180,7 +189,12 @@ export default function NewEntryPage() {
             dragOver ? 'border-cyan-400 bg-cyan-400/10' : 'border-white/15 hover:bg-white/5'
           }`}
         >
-          <input type="file" accept="image/*" className="hidden" onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+          />
           <span className="text-sm text-zinc-400">
             Drag & drop, or <span className="text-zinc-200 underline">browse</span> to upload
           </span>
@@ -220,7 +234,7 @@ export default function NewEntryPage() {
         <button
           type="submit"
           disabled={saving || !title}
-          className={`w-full rounded-lg bg-gradient-to-r ${styles.gradient} px-4 py-2 font-semibold text-zinc-900 shadow-lg transition-all hover:scale-[1.03] neon-glow`}
+          className={`w-full rounded-lg bg-gradient-to-r ${styles.gradient} px-4 py-2 font-semibold text-zinc-900 shadow-lg transition-all hover:scale-[1.03] neon-glow disabled:opacity-50`}
         >
           {saving ? 'Saving…' : 'Save Entry'}
         </button>
