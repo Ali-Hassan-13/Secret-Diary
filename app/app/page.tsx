@@ -146,8 +146,8 @@ export default function AppHome() {
                   <div className="flex items-center gap-3">
                     <div
                       className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: MOOD_COLORS[e.mood] || '#71717a' }}
-                    />
+style={{ backgroundColor: MOOD_COLORS[e.mood ?? 'neutral'] || '#71717a' }}
+/>
                     <div>
                       <p className="text-sm font-medium text-zinc-100 group-hover:text-white transition line-clamp-1">
                         {e.title || 'Untitled'}
@@ -160,8 +160,9 @@ export default function AppHome() {
                   <span
                     className="text-xs px-2 py-0.5 rounded-full"
                     style={{
-                      backgroundColor: `${MOOD_COLORS[e.mood] || '#71717a'}20`,
-                      color: MOOD_COLORS[e.mood] || '#71717a',
+                      backgroundColor: `${MOOD_COLORS[e.mood ?? 'neutral'] || '#71717a'}20`,
+color: MOOD_COLORS[e.mood ?? 'neutral'] || '#71717a',
+
                     }}
                   >
                     {e.mood || '—'}
