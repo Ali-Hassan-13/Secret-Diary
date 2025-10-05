@@ -165,7 +165,10 @@ export default function SignupPage() {
               {code.map((v, i) => (
                 <input
                   key={i}
-                  ref={(el) => (inputsRef.current[i] = el)}
+                 ref={(el) => {
+  inputsRef.current[i] = el;
+}}
+
                   inputMode="numeric"
                   aria-label={`Digit ${i + 1}`}
                   autoComplete="one-time-code"
