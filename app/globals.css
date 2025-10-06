@@ -1,17 +1,23 @@
+/* ==== Tailwind import ===========================================
+   Tailwind v4+: keep this line.
+   Tailwind v3.x: replace this with:
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+================================================================= */
 @import "tailwindcss";
 
+/* ==== Design tokens (light defaults) ============================ */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Optional font vars (hook these up in your _app or layout via next/font) */
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, Arial, Helvetica, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark mode token overrides (auto if user prefers dark) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,11 +25,39 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Tailwind v4 theme bridge (optional; lets you refer via theme())
+   You can remove this if you don't use it. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
+
+/* ==== Base element styles (use @layer to ensure proper order) ==== */
+@layer base {
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    /* 🖊️ Custom Pencil Cursor (set hotspot once) */
+    cursor: url("/cursor/pencil.cur") 0 16, auto; /* (x,y hotspot of pencil tip) */
+  }
+
+  /* Make interactive elements also use the pencil cursor.
+     Use pointer as a sensible fallback. */
+  a, button, [role="button"], input, textarea, select, label {
+    cursor: url("/cursor/pencil.cur") 0 16, pointer;
+  }
+}
+
+/* ==== Utilities / custom animations & effects =================== */
+
+/* Smooth gradient pan */
 @keyframes gradient-slow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -35,27 +69,36 @@ body {
   animation: gradient-slow 12s ease infinite;
 }
 
+/* Neon palette (single-source-of-truth; no duplicates) */
 .neon-glow {
-  box-shadow: 0 0 12px rgba(255,255,255,0.2),
-              0 0 25px currentColor,
-              inset 0 0 10px currentColor;
-  transition: all 0.3s ease;
+  /* subtle outer + aqua-ish inner glow that works on light/dark */
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.12),
+    0 0 25px rgba(0, 255, 255, 0.35),
+    inset 0 0 10px rgba(0, 255, 255, 0.28);
+  transition: box-shadow 0.3s ease, filter 0.3s ease, transform 0.3s ease;
 }
-.neon-green { color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
-.neon-pink { color: #ff33ff; text-shadow: 0 0 10px #ff33ff; }
-.neon-red { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
-.neon-blue { color: #33ccff; text-shadow: 0 0 10px #33ccff; }
+
+.neon-green  { color: #00ffcc; text-shadow: 0 0 10px #00ffcc; }
+.neon-pink   { color: #ff33ff; text-shadow: 0 0 10px #ff33ff; }
+.neon-red    { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
+.neon-blue   { color: #33ccff; text-shadow: 0 0 10px #33ccff, 0 0 20px #00ccff, 0 0 30px #00aaff; }
 .neon-yellow { color: #ffee33; text-shadow: 0 0 10px #ffee33; }
-.neon-gray { color: #cccccc; text-shadow: 0 0 8px #999; }
+.neon-gray   { color: #cccccc; text-shadow: 0 0 8px  #999999; }
+
+/* Optional hover flourish for clickable controls */
+a:hover, button:hover {
+  filter: drop-shadow(0 0 6px cyan);
+}
+
+/* app/globals.css */
+body {
+  cursor: url("/cursor/pencil.cur") 0 16, auto;
+}
+
+a, button, input, textarea {
+  cursor: url("/cursor/pencil.cur") 0 16, pointer;
+}
 
 
-.neon-blue {
-  color: #33ccff;
-  text-shadow: 0 0 10px #33ccff, 0 0 20px #00ccff, 0 0 30px #00aaff;
-}
-.neon-glow {
-  box-shadow: 0 0 12px rgba(255,255,255,0.1),
-              0 0 25px rgba(0,255,255,0.4),
-              inset 0 0 10px rgba(0,255,255,0.3);
-  transition: all 0.3s ease;
-}
+body { cursor: url("/cursor/pencil.cur"), auto; }

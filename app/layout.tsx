@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Personal Diary",
-  description: "A private diary app with Supabase authentication",
+  title: "Secret Diary - A Diary with Emotional tracker",
+  description: "A Diary with Emotional tracker that helps you be in sync with your emotions",
 };
 
 export default function RootLayout({
